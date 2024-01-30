@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body onload="fetchpokimonType()">
+    
+    <div>
+        <select id="pokemon-types">
+
+        </select>
+
+        <button onclick="fetchPokenmonOnType()"> Filder by Type</button>
+    </div>
+    <div id="pokemons-list">
+
+    </div>
+
+    <script>
+        // window.addEventListener('domcontentloaded', () => {})
+
+            const pokenmonTypeURL = 'https://pokeapi.co/api/v2/type/'
+
+            const nameURLMap = {}
+
+
+        function fetchpokimonType() {
+
+            fetch(pokenmonTypeURL)
+
+            .then (
+            (response) => response.json()
+            )
+
+
+            .then((parsedResponse) => {
+
+            console.log(parsedResponse)
+
+            const select = document.getElementById('pokemon-types')
+
+                for(let i = 0; i < parsedResponse.results.length; i++) {
+                    const type = parsedResponse.results[i]
+                    const typeName = type.name
+                    const typeURL = type.url
+                    nameURLMap[typeName] = typeURL
+                    const option = document.createElement('option')
+                    option.innerHTML = typeName
+                    option.setAttribute('value', typeName)
+                    select.append(option)
+            }
+        }
+
+        )
+
+            
+        }
+
+
+
+         function fetchPokenmonOnType(){
+            const selctValue = document.getElementById('pokemon-types').value;
+            const pokemonsBox = document.getElementById('pokemons-list')
+            // console.log(selctValue, "  ",nameURLMap[selctValue])
+            fetch(nameURLMap[selctValue])
+            .then((response) => response.json())
+            .then((parsedResponse) => {
+                const pokemonsData = parsedResponse.pokemon
+                const pokemonsListLength = pokemonsData.length > 10 ? 10 : pokemonsData.length; 
+                pokemonsBox.innerHTML = ""
+                for(let i  = 0; i < pokemonsListLength; i++){
+                    const pokemon = pokemonsData[i].pokemon;
+                    const pokemonName = pokemon.name;
+                    const pokemonURL = pokemon.url;
+                    
+                    
+                    const imageSrcData = ''
+                    fetchPokemonData(pokemonURL).then(imageSrc => {
+                        const pokemonDiv = document.createElement("div");
+                    const pokemonFrontPicture = document.createElement("img")
+                    const pokemonNameSpan = document.createElement("span");
+                    const pokemonNameType = document.createElement("span");
+                    pokemonFrontPicture.setAttribute("src", imageSrc)
+
+                    pokemonNameSpan.innerText = pokemonName
+                    
+                    pokemonDiv.append(pokemonFrontPicture, pokemonNameSpan);
+                    // pokemonNameSpan.innerText = ""
+                    pokemonsBox.appendChild(pokemonDiv);
+                        })
+                    
+                }
+            })
+        }
+
+        async function fetchPokemonData(pokemonURL){
+            const response = await fetch(pokemonURL)
+            const parsedResponse = await response.json()
+            return parsedResponse.sprites.front_default
+            // const result = {}
+        }
+        // fetchpokimonType()
+    </script>
+</body>
+</html>
